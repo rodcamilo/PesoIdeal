@@ -1,19 +1,38 @@
-import flet as ft
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
+from kivy.core.window import Window
 
-def main(page: ft.Page):
-    page.title = "Calculadora de Peso Ideal"
-    page.theme_mode = ft.ThemeMode.LIGHT
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+Window.clearcolor = (0.95, 0.95, 0.95, 1)
 
-    txt_altura = ft.TextField(label="Altura em cm (ex: 175)", keyboard_type=ft.KeyboardType.NUMBER)
-    txt_massa = ft.TextField(label="Peso/Massa em kg (ex: 70)", keyboard_type=ft.KeyboardType.NUMBER)
-    lbl_resultado = ft.Text(size=16, weight=ft.FontWeight.BOLD)
+class PesoIdealApp(App):
+    def build(self):
+        self.title = "PesoIdeal"
+        layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
 
-    def calcular(e):
+        layout.add_widget(Label(text="CALCULADORA DE PESO IDEAL", color=(0, 0, 0, 1), font_size='18sp', bold=True))
+
+        self.input_altura = TextInput(hint_text="Altura em cm (ex: 175)", input_filter='int', multiline=False)
+        layout.add_widget(self.input_altura)
+
+        self.input_massa = TextInput(hint_text="Peso/Massa em kg (ex: 70)", input_filter='int', multiline=False)
+        layout.add_widget(self.input_massa)
+
+        btn = Button(text="Calcular IMC", background_color=(0.1, 0.6, 0.4, 1))
+        btn.bind(on_press=self.calcular)
+        layout.add_widget(btn)
+
+        self.lbl_resultado = Label(text="", color=(0, 0, 0, 1), font_size='14sp', halign='center')
+        layout.add_widget(self.lbl_resultado)
+
+        return layout
+
+    def calcular(self, instance):
         try:
-            altura = int(txt_altura.value)
-            massa = int(txt_massa.value)
+            altura = int(self.input_altura.text)
+            massa = int(self.input_massa.text)
             imc = massa / ((altura * altura) / 10000)
             alvomin = ((altura * altura) * 18.5) / 10000
             alvomax = ((altura * altura) * 24.99) / 10000
@@ -33,13 +52,9 @@ def main(page: ft.Page):
             else:
                 status = "OBESIDADE MÓRBIDA, risco elevado."
 
-            lbl_resultado.value = f"IMC: {round(imc, 2)}\n{status}\nPeso Ideal: {round(alvomin, 2)}kg a {round(alvomax, 2)}kg"
-        except (ValueError, TypeError):
-            lbl_resultado.value = "Por favor, insira valores inteiros válidos!"
-        page.update()
-
-    btn_calcular = ft.ElevatedButton("Calcular IMC", on_click=calcular)
-    page.add(txt_altura, txt_massa, btn_calcular, lbl_resultado)
+            self.lbl_resultado.text = f"IMC: {round(imc, 2)}\n{status}\nPeso Ideal: {round(alvomin, 2)}kg a {round(alvomax, 2)}kg"
+        except ValueError:
+            self.lbl_resultado.text = "Por favor, insira valores inteiros válidos!"
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    PesoIdealApp().run()
