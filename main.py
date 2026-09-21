@@ -18,7 +18,6 @@ def main(page: ft.Page):
             alvomin = ((altura * altura) * 18.5) / 10000
             alvomax = ((altura * altura) * 24.99) / 10000
 
-            status = ""
             if imc < 17:
                 status = "Você está MUITO ABAIXO do peso ideal."
             elif imc < 18.5:
@@ -28,18 +27,19 @@ def main(page: ft.Page):
             elif imc < 30:
                 status = "Você está ACIMA do peso ideal."
             elif imc < 35:
-                status = "Você está OBESO."
+                status = "Você está OBESO, procure um médico."
             elif imc < 40:
-                status = "OBESIDADE SEVERA."
+                status = "OBESIDADE SEVERA, procure um médico urgente."
             else:
-                status = "OBESIDADE MÓRBIDA."
+                status = "OBESIDADE MÓRBIDA, risco elevado."
 
             lbl_resultado.value = f"IMC: {round(imc, 2)}\n{status}\nPeso Ideal: {round(alvomin, 2)}kg a {round(alvomax, 2)}kg"
-        except ValueError:
+        except (ValueError, TypeError):
             lbl_resultado.value = "Por favor, insira valores inteiros válidos!"
         page.update()
 
     btn_calcular = ft.ElevatedButton("Calcular IMC", on_click=calcular)
     page.add(txt_altura, txt_massa, btn_calcular, lbl_resultado)
 
-ft.app(target=main)
+if __name__ == "__main__":
+    ft.app(target=main)

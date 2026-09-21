@@ -18,36 +18,43 @@ jobs:
           pip install pyinstaller flet
       - name: Build Executable Windows
         run: |
-          pyinstaller --onefile --noconsole --icon=icon.ico main.py
+          pyinstaller --onefile --noconsole --name PesoIdeal --icon=icon.ico main.py
       - name: Upload Windows Executable
         uses: actions/upload-artifact@v4
         with:
           name: PesoIdeal-Windows
-          path: dist/main.exe
+          path: dist/PesoIdeal.exe
 
   build-android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install Flet CLI
+
+      - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install flet
+
       - name: Build APK Android
         run: |
-          flet build apk
+          flet build apk --no-analytics
+
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
