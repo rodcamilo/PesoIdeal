@@ -1,8 +1,7 @@
 name: Build App Android e Windows
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch: # Permite a execução manual através da interface do GitHub
 
 jobs:
   build-windows:
