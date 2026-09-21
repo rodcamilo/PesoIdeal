@@ -28,11 +28,11 @@ def main(page: ft.Page):
             elif imc < 30:
                 status = "Você está ACIMA do peso ideal."
             elif imc < 35:
-                status = "Você está OBESO, procure um médico."
+                status = "Você está OBESO."
             elif imc < 40:
-                status = "OBESIDADE SEVERA, procure um médico urgente."
+                status = "OBESIDADE SEVERA."
             else:
-                status = "OBESIDADE MÓRBIDA, risco elevado."
+                status = "OBESIDADE MÓRBIDA."
 
             lbl_resultado.value = f"IMC: {round(imc, 2)}\n{status}\nPeso Ideal: {round(alvomin, 2)}kg a {round(alvomax, 2)}kg"
         except ValueError:
