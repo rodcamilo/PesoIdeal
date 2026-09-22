@@ -4,59 +4,78 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller kivy[base]
-
-      - name: Build Executable Windows
-        run: |
-          pyinstaller --onefile --noconsole --name PesoIdeal --icon=icon.ico --collect-all kivy main.py
-
-      - name: Upload Windows Executable
-        uses: actions/upload-artifact@v4
-        with:
-          name: PesoIdeal-Windows
-          path: dist/PesoIdeal.exe
 
   build-android:
+    name: Compilar APK Android
     runs-on: ubuntu-22.04
+
+    env:
+      ACTIONS_RUNNER_FORCE_ACTIONS_NODE20: "true"
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Configurar Java JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
-      - name: Set up Python
+      - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install Buildozer and System Dependencies
+      - name: Instalar Dependencias
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
-          pip install --upgrade buildozer Cython
+          sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev
 
-      - name: Build APK with Buildozer
+          pip install --upgrade pip
+          pip install "buildozer>=1.5.0" cython
+
+      - name: Compilar APK
         run: |
-          buildozer -v android debug
+          yes | buildozer android debug
 
-      - name: Upload Android APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: PesoIdeal-Android
           path: bin/*.apk
+
+  build-windows:
+    name: C*mpilar EXE Windows
+    runs-on: wi*dows-latest
+
+    steps:
+      - us*s: actions/checkout@v4
+
+      - na*e: Configurar Python
+        uses:*actions/setup-python@v5
+        wi*h:
+          python-version: '3.11*
+
+      - name: Instalar Dependenc*as
+        run: |
+          python*-m pip install --upgrade pip
+     *    pip install pyinstaller kivy[base] kivy_deps.angle
+
+          if *Test-Path requirements.txt) {
+    *       pip install -r requirements*txt
+          }
+
+      - name: Ger*r Executavel
+        env:
+        * KIVY_GL_BACKEND: angle_sdl2
+     *    KIVY_NO_ARGS: "1"
+          KI*Y_HEADLESS: "1"
+          KIVY_WIN*OW: mock
+        run: |
+          *yinstaller --noconfirm --onefile -*windowed --name "PesoIdeal" main.p*
+
+      - name: Upload EXE
+       *uses: actions/upload-artifact@v4
+ *      with:
+          name: PesoId*al-Windows
+          path: dist/Pe*oIdeal.exe
