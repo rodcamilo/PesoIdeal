@@ -1,14 +1,14 @@
-name: Build Android APK
+name: Build Nosferatu (Android APK & Windows EXE)
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+  workflow_dispatch: # Executa APENAS quando acionado manualmente no GitHub
 
 jobs:
-  build:
+  # ==========================================
+  # JOB 1: Compilação do APK Android (Linux)
+  # ==========================================
+  build-android:
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install Android Build Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -43,22 +43,60 @@ jobs:
           pkg-config \
           cmake \
           unzip \
-          zip
+          zip \
+          ccache
         python -m pip install --upgrade pip
-        pip install --upgrade buildozer Cython
+        pip install --upgrade buildozer Cython==0.29.33 kivy
 
-    - name: Create Buildozer directory and accept Android SDK licenses
+    - name: Auto-accept Android SDK Licenses
       run: |
+        # Pre-cria diretórios e aceita todas as licenças do Android SDK antecipadamente
         mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
         echo -e "\n24333f8a637b3702d1927e129f170b04c89dd1a5\n89330d3222e0e0f21508dae763172ef0132b84ba\nd56f518747945140b3297a73840788ee5a51a148" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
         echo -e "\n84831b9402116e05f350b8639fe287d758635489" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+        echo -e "\n6010077ebe969f441b9a6a82462c0e6e6da57127" > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
+        echo -e "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > ~/.buildozer/android/platform/android-sdk/licenses/mips-android-sysimage-license
 
-    - name: Build APK with Buildozer
+    - name: Build APK with Buildozer (Auto-Confirm All)
       run: |
+        # O PIPE 'yes' força 'y' em qualquer confirmação pendente no terminal
         yes | buildozer android debug
 
-    - name: Upload APK Artifact
+    - name: Upload Android APK
       uses: actions/upload-artifact@v4
       with:
-        name: package
+        name: nosferatu-android-apk
         path: bin/*.apk
+
+  # ==========================================
+  # JOB 2: Compilação do EXE Windows (Windows)
+  # ==========================================
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Windows Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller kivy[base]
+        if (Test-Path "requirements.txt") { pip install -r requirements.txt }
+
+    - name: Build Windows Executable
+      run: |
+        # Gera o executável tratando todas as sobrescritas sem pedir confirmação (--noconfirm)
+        pyinstaller --noconfirm --onedir --windowed main.py
+
+    - name: Upload Windows Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: nosferatu-windows-exe
+        path: dist/main/
