@@ -1,4 +1,4 @@
-name: Build Nosferatu (Android APK & Windows EXE)
+name: Build Peso Ideal (Android APK & Windows EXE)
 
 on:
   workflow_dispatch: # Executa APENAS quando acionado manualmente no GitHub
@@ -59,13 +59,12 @@ jobs:
 
     - name: Build APK with Buildozer (Auto-Confirm All)
       run: |
-        # O PIPE 'yes' força 'y' em qualquer confirmação pendente no terminal
         yes | buildozer android debug
 
     - name: Upload Android APK
       uses: actions/upload-artifact@v4
       with:
-        name: nosferatu-android-apk
+        name: peso-ideal-android-apk
         path: bin/*.apk
 
   # ==========================================
@@ -92,11 +91,10 @@ jobs:
 
     - name: Build Windows Executable
       run: |
-        # Gera o executável tratando todas as sobrescritas sem pedir confirmação (--noconfirm)
         pyinstaller --noconfirm --onedir --windowed main.py
 
     - name: Upload Windows Executable
       uses: actions/upload-artifact@v4
       with:
-        name: nosferatu-windows-exe
+        name: peso-ideal-windows-exe
         path: dist/main/
