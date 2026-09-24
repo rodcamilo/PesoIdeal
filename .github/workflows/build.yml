@@ -1,85 +1,64 @@
-name: Build App Android e Windows
+name: Build Android APK
 
 on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build-android:
-    name: Compilar APK Android
-    runs-on: ubuntu-22.04
-
-    env:
-      ACTIONS_RUNNER_FORCE_ACTIONS_NODE20: "true"
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do codigo
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Configurar Java JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          git \
+          ffmpeg \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixin-dev \
+          libsdl2-ttf-dev \
+          libportmidi-dev \
+          libswscale-dev \
+          libavformat-dev \
+          libavcodec-dev \
+          zlib1g-dev \
+          openjdk-17-jdk \
+          autoconf \
+          automake \
+          libtool \
+          pkg-config \
+          cmake \
+          unzip \
+          zip
+        python -m pip install --upgrade pip
+        pip install --upgrade buildozer Cython
 
-      - name: Instalar Dependencias do Sistema e Buildozer
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install "buildozer>=1.5.0" cython
+    - name: Create Buildozer directory and accept Android SDK licenses
+      run: |
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo -e "\n24333f8a637b3702d1927e129f170b04c89dd1a5\n89330d3222e0e0f21508dae763172ef0132b84ba\nd56f518747945140b3297a73840788ee5a51a148" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo -e "\n84831b9402116e05f350b8639fe287d758635489" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
-      - name: Compilar APK com Buildozer
-        run: |
-          yes | buildozer android debug
+    - name: Build APK with Buildozer
+      run: |
+        yes | buildozer android debug
 
-      - name: Salvar APK como Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: PesoIdeal-Android
-          path: bin/*.apk
-
-  build-windows:
-    name: Compilar Executavel Windows
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout do codigo
-        uses: actions/checkout@v4
-
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Instalar Dependencias
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller kivy[base] kivy_deps.angle
-          if (Test-Path requirements.txt) { pip install -r requirements.txt }
-
-      - name: Gerar Executavel Unico (Onefile)
-        env:
-          KIVY_GL_BACKEND: angle_sdl2
-          KIVE_NO_CONSOLE: "1"
-          KIVY_NO_ARGS: "1"
-          KIVY_HEADLESS: "1"
-          KIVY_WINDOW: mock
-        run: |
-          pyinstaller --noconfirm --onefile --windowed --name "PesoIdeal" main.py
-
-      - name: Criar e Assinar Executavel
-        shell: powershell
-        run: |
-          $cert = New-SelfSignedCertificate -CertStoreLocation cert:\CurrentUser\My -Subject "CN=PesoIdealApp" -Type CodeSigningCert
-          Set-AuthenticodeSignature -FilePath "dist/PesoIdeal.exe" -Certificate $cert
-
-      - name: Salvar Executavel como Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: PesoIdeal-Windows
-          path: dist/PesoIdeal.exe
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: package
+        path: bin/*.apk
