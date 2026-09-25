@@ -18,9 +18,9 @@ class CalcIMC(App):
 
         self.output = Label(
             text=f"\n[color=#FFFFFF]{self.sep}[/color]\n"
-            "[color=#FFFFFF]CALCULADORA DE PESO/MASSA IDEAL CONFORME IMC[/color]\n"
+            "[color=#FFFFFF]CALCULADORA DE PESO IDEAL (IMC)[/color]\n"
             f"[color=#FFFFFF]{self.sep}[/color]\n"
-            "[color=#FFFFFF]Informe sua altura (apenas 3 números, ex: 175):[/color]\n",
+            "[color=#FFFFFF]Informe sua altura (apenas 3 números, ex: 175):[/color]",
             size_hint_y=None, 
             markup=True,
             halign='center'
@@ -64,7 +64,10 @@ class CalcIMC(App):
         if self.altura is None:
             self.altura = valor
             self.input_dado.hint_text = "Digite o peso/massa"
-            log = f"[color=#FFFFFF]Altura informada: {self.altura} cm[/color]\n[color=#FFFFFF]Informe seu peso/massa (sem decimais):[/color]"
+            log = (
+                f"[color=#FFFFFF]Altura informada: {self.altura} cm[/color]\n"
+                "[color=#FFFFFF]Informe seu peso/massa (arredondado, sem decimais):[/color]"
+            )
             self.output.text += f"\n{log}"
             return
 
@@ -82,23 +85,23 @@ class CalcIMC(App):
         log_resultado += f"[color=#FFFFFF]Seu IMC é {round(imc, 2)}.[/color]\n"
 
         if imc < 17:
-            log_resultado += f"[color=#FF0000]Você está MUITO ABAIXO do peso/massa ideal.[/color]\n"
+            log_resultado += f"[color=#FF0000]MAGREZA SEVERA/DESNUTRIÇÃO![/color]\n"
         elif imc < 18.5:
-            log_resultado += f"[color=#FFFF00]Você está ABAIXO do peso/massa ideal.[/color]\n"
+            log_resultado += f"[color=#FFFF00]ABAIXO do peso/massa ideal.[/color]\n"
         elif imc < 25:
-            log_resultado += f"[color=#00FF00]Você está com o peso/massa IDEAL.[/color]\n"
+            log_resultado += f"[color=#00FF00]Peso/massa IDEAL.[/color]\n"
         elif imc < 30:
-            log_resultado += f"[color=#FFFF00]Você está ACIMA do peso/massa ideal.[/color]\n"
+            log_resultado += f"[color=#FFFF00]ACIMA do peso/massa ideal.[/color]\n"
         elif imc < 35:
-            log_resultado += f"[color=#FF0000]Você está OBESO, procure um médico.[/color]\n"
+            log_resultado += f"[color=#FF0000]OBESIDADE![/color]\n"
         elif imc < 40:
-            log_resultado += f"[color=#FF0000]Você está em OBESIDADE SEVERA, procure um médico com URGÊNCIA.[/color]\n"
+            log_resultado += f"[color=#FF0000]OBESIDADE SEVERA![/color]\n"
         else:
-            log_resultado += f"[color=#FF0000]Você está em OBESIDADE MÓRBIDA e correndo RISCO DE MORTE.[/color]\n"
+            log_resultado += f"[color=#FF0000]OBESIDADE MÓRBIDA![/color]\n"
 
         log_resultado += f"[color=#FFFFFF]Seu peso/massa ideal é entre {round(alvomin, 2)} e {round(alvomax, 2)}.[/color]\n"
         log_resultado += f"[color=#FFFFFF]{self.sep}[/color]\n"
-        log_resultado += "[color=#FFFFFF]\nPara novo cálculo, informe a altura (ex: 175):[/color]"
+        log_resultado += "[color=#FFFFFF]Para novo cálculo, informe a altura (ex: 175):[/color]"
 
         self.output.text += f"\n{log_resultado}"
 
