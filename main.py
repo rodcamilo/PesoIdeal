@@ -3,58 +3,109 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
-from kivy.core.window import Window
+from kivy.uix.scrollview import ScrollView
 
-Window.clearcolor = (0.95, 0.95, 0.95, 1)
-
-class PesoIdealApp(App):
+class CalcIMC(App):
     def build(self):
-        self.title = "PesoIdeal"
-        layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+        # Variáveis de estado para controlar a sequência de entrada
+        self.altura = None
+        self.massa = None
 
-        layout.add_widget(Label(text="CALCULADORA DE PESO IDEAL", color=(0, 0, 0, 1), font_size='18sp', bold=True))
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        # Divisória ajustada para 45 caracteres para caber em telas mobile sem vazar
+        self.sep = "============================================="
 
-        self.input_altura = TextInput(hint_text="Altura em cm (ex: 175)", input_filter='int', multiline=False)
-        layout.add_widget(self.input_altura)
+        self.output = Label(
+            text=f"\n[color=#FFFFFF]{self.sep}[/color]\n"
+            "[color=#FFFFFF]CALCULADORA DE PESO/MASSA IDEAL CONFORME IMC[/color]\n"
+            f"[color=#FFFFFF]{self.sep}[/color]\n"
+            "[color=#FFFFFF]Informe sua altura (apenas 3 números, ex: 175):[/color]\n",
+            size_hint_y=None, 
+            markup=True,
+            halign='center'
+        )
+        
+        # Mantém a altura dinâmica conforme o texto cresce
+        self.output.bind(texture_size=lambda instance, value: setattr(instance, 'height', value[1]))
+        
+        scroll = ScrollView(size_hint=(1, 0.7))
+        scroll.add_widget(self.output)
+        layout.add_widget(scroll)
 
-        self.input_massa = TextInput(hint_text="Peso/Massa em kg (ex: 70)", input_filter='int', multiline=False)
-        layout.add_widget(self.input_massa)
+        # Entrada de texto
+        self.input_dado = TextInput(
+            hint_text="Digite a altura", 
+            multiline=False, 
+            input_filter='int', 
+            size_hint_y=None, 
+            height=100
+        )
+        self.input_dado.bind(on_text_validate=self.processar_calculo)
+        layout.add_widget(self.input_dado)
 
-        btn = Button(text="Calcular IMC", background_color=(0.1, 0.6, 0.4, 1))
-        btn.bind(on_press=self.calcular)
+        btn = Button(text="ENVIAR", size_hint_y=None, height=100)
+        btn.bind(on_press=self.processar_calculo)
         layout.add_widget(btn)
-
-        self.lbl_resultado = Label(text="", color=(0, 0, 0, 1), font_size='14sp', halign='center')
-        layout.add_widget(self.lbl_resultado)
 
         return layout
 
-    def calcular(self, instance):
-        try:
-            altura = int(self.input_altura.text)
-            massa = int(self.input_massa.text)
-            imc = massa / ((altura * altura) / 10000)
-            alvomin = ((altura * altura) * 18.5) / 10000
-            alvomax = ((altura * altura) * 24.99) / 10000
+    def processar_calculo(self, instance):
+        valor_str = self.input_dado.text.strip()
+        self.input_dado.text = ""
+        self.input_dado.focus = True
 
-            if imc < 17:
-                status = "Você está MUITO ABAIXO do peso ideal."
-            elif imc < 18.5:
-                status = "Você está ABAIXO do peso ideal."
-            elif imc < 25:
-                status = "Você está com o peso IDEAL."
-            elif imc < 30:
-                status = "Você está ACIMA do peso ideal."
-            elif imc < 35:
-                status = "Você está OBESO, procure um médico."
-            elif imc < 40:
-                status = "OBESIDADE SEVERA, procure um médico urgente."
-            else:
-                status = "OBESIDADE MÓRBIDA, risco elevado."
+        if not valor_str.isdigit():
+            return
 
-            self.lbl_resultado.text = f"IMC: {round(imc, 2)}\n{status}\nPeso Ideal: {round(alvomin, 2)}kg a {round(alvomax, 2)}kg"
-        except ValueError:
-            self.lbl_resultado.text = "Por favor, insira valores inteiros válidos!"
+        valor = int(valor_str)
+
+        # Passo 1: Receber Altura
+        if self.altura is None:
+            self.altura = valor
+            self.input_dado.hint_text = "Digite o peso/massa"
+            log = f"[color=#FFFFFF]Altura informada: {self.altura} cm[/color]\n[color=#FFFFFF]Informe seu peso/massa (sem decimais):[/color]"
+            self.output.text += f"\n{log}"
+            return
+
+        # Passo 2: Receber Peso e Processar o Cálculo
+        self.massa = valor
+        
+        altura = self.altura
+        massa = self.massa
+        
+        imc = massa / ((altura * altura) / 10000)
+        alvomin = ((altura * altura) * 18.5) / 10000
+        alvomax = ((altura * altura) * 24.99) / 10000
+
+        log_resultado = f"[color=#FFFFFF]{self.sep}[/color]\n"
+        log_resultado += f"[color=#FFFFFF]Seu IMC é {round(imc, 2)}.[/color]\n"
+
+        if imc < 17:
+            log_resultado += f"[color=#FF0000]Você está MUITO ABAIXO do peso/massa ideal.[/color]\n"
+        elif imc < 18.5:
+            log_resultado += f"[color=#FFFF00]Você está ABAIXO do peso/massa ideal.[/color]\n"
+        elif imc < 25:
+            log_resultado += f"[color=#00FF00]Você está com o peso/massa IDEAL.[/color]\n"
+        elif imc < 30:
+            log_resultado += f"[color=#FFFF00]Você está ACIMA do peso/massa ideal.[/color]\n"
+        elif imc < 35:
+            log_resultado += f"[color=#FF0000]Você está OBESO, procure um médico.[/color]\n"
+        elif imc < 40:
+            log_resultado += f"[color=#FF0000]Você está em OBESIDADE SEVERA, procure um médico com URGÊNCIA.[/color]\n"
+        else:
+            log_resultado += f"[color=#FF0000]Você está em OBESIDADE MÓRBIDA e correndo RISCO DE MORTE.[/color]\n"
+
+        log_resultado += f"[color=#FFFFFF]Seu peso/massa ideal é entre {round(alvomin, 2)} e {round(alvomax, 2)}.[/color]\n"
+        log_resultado += f"[color=#FFFFFF]{self.sep}[/color]\n"
+        log_resultado += "[color=#FFFFFF]\nPara novo cálculo, informe a altura (ex: 175):[/color]"
+
+        self.output.text += f"\n{log_resultado}"
+
+        # Reseta as variáveis para permitir novo cálculo imediato
+        self.altura = None
+        self.massa = None
+        self.input_dado.hint_text = "Digite a altura"
 
 if __name__ == "__main__":
-    PesoIdealApp().run()
+    CalcIMC().run()
