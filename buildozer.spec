@@ -1,36 +1,23 @@
 [app]
-# (str) Title of your application
-title = PesoIdeal
-
-# (str) Package name
+# Nome do aplicativo que aparecerá no celular
+title = Peso Ideal
 package.name = pesoideal
-
-# (str) Package domain (needed for android/ios packaging)
-package.domain = org.rodcamilo
-
-# (str) Source code where the main.py lives
+package.domain = org.pesoideal
 source.dir = .
-
-# (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
-
-# (str) Application versioning (method 1)
-version = 1.0
-
-# (list) Application requirements
-# comma separated e.g. requirements = sqlite3,kivy
+version = 0.1
 requirements = python3,kivy
-
-# (str) Supported orientations
 orientation = portrait
-
-# (int) Target OS version / Fullscreen flag
 fullscreen = 0
 
-# Ícone principal
+# Ícone legado (para versões antigas do Android)
 icon.filename = %(source.dir)s/icon.png
 
-# Compatibilidade e estabilidade do Android SDK/NDK/Build-Tools
+# Ícone adaptativo (Android 8.0+)
+icon.adaptive_foreground.filename = %(source.dir)s/icon.png
+icon.adaptive_background.color = #000000
+
+# Fixando versoes estaveis do Android SDK/Build-Tools (mesmas do nosf)
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
@@ -40,8 +27,5 @@ android.entrypoint = org.kivy.android.PythonActivity
 p4a.branch = release-2024.01.21
 
 [buildozer]
-# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2
-
-# (int) Display warning if buildozer is run as root (0 = disable, 1 = enable)
 warn_on_root = 1
