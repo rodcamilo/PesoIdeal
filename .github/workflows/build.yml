@@ -1,7 +1,7 @@
 name: Build Peso Ideal (Android & Windows)
 
 on:
-  workflow_dispatch: # Executa APENAS manualmente quando você clicar em "Run workflow"
+  workflow_dispatch: # Executa APENAS manualmente
 
 jobs:
   # ==========================================
@@ -9,7 +9,7 @@ jobs:
   # ==========================================
   build-android:
     name: Build Android APK
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout repository
@@ -46,16 +46,13 @@ jobs:
           zip \
           ccache
         python -m pip install --upgrade pip
-        pip install --upgrade buildozer "cython<3.0.0"
+        pip install --upgrade buildozer "cython==0.29.33"
 
-    - name: Build APK (Auto accept licenses)
-      run: |
-        # Pre-aceita as licenças globais do Android SDK antes do build
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        
-        # Executa o buildzer forçando aceite em qualquer prompt interativo
-        yes | buildozer -v android debug
+    - name: Build with Buildozer Action
+      uses: ArtemSydoryk/buildozer-action@v1.2.1
+      with:
+        command: buildozer android debug
+        repository_root: .
 
     - name: Upload Android APK
       uses: actions/upload-artifact@v4
