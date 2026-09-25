@@ -1,11 +1,11 @@
-name: Build Peso Ideal (Android APK & Windows EXE)
+name: Build Peso Ideal (Android & Windows)
 
 on:
-  workflow_dispatch: # Executa APENAS quando acionado manualmente no GitHub
+  workflow_dispatch: # Executa APENAS manualmente quando clica em "Run workflow"
 
 jobs:
   # ==========================================
-  # JOB 1: Compilação do APK Android (Linux)
+  # JOB 1: Android APK
   # ==========================================
   build-android:
     name: Build Android APK
@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Android Build Dependencies
+    - name: Install System & Buildozer Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -46,18 +46,16 @@ jobs:
           zip \
           ccache
         python -m pip install --upgrade pip
-        pip install --upgrade buildozer Cython==0.29.33 kivy
+        pip install --upgrade buildozer cython
 
-    - name: Auto-accept Android SDK Licenses
+    - name: Accept Android SDK Licenses Automatically
       run: |
-        # Pre-cria diretórios e aceita todas as licenças do Android SDK antecipadamente
+        # Prepara a pasta de licenças e aceita todas antes do buildozer rodar
         mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
         echo -e "\n24333f8a637b3702d1927e129f170b04c89dd1a5\n89330d3222e0e0f21508dae763172ef0132b84ba\nd56f518747945140b3297a73840788ee5a51a148" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
         echo -e "\n84831b9402116e05f350b8639fe287d758635489" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
-        echo -e "\n6010077ebe969f441b9a6a82462c0e6e6da57127" > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
-        echo -e "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > ~/.buildozer/android/platform/android-sdk/licenses/mips-android-sysimage-license
 
-    - name: Build APK with Buildozer (Auto-Confirm All)
+    - name: Build APK
       run: |
         yes | buildozer android debug
 
@@ -68,7 +66,7 @@ jobs:
         path: bin/*.apk
 
   # ==========================================
-  # JOB 2: Compilação do EXE Windows (Windows)
+  # JOB 2: Windows EXE
   # ==========================================
   build-windows:
     name: Build Windows EXE
@@ -83,17 +81,17 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Windows Dependencies
+    - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller kivy[base]
+        pip install pyinstaller
         if (Test-Path "requirements.txt") { pip install -r requirements.txt }
 
     - name: Build Windows Executable
       run: |
         pyinstaller --noconfirm --onedir --windowed main.py
 
-    - name: Upload Windows Executable
+    - name: Upload Windows EXE
       uses: actions/upload-artifact@v4
       with:
         name: peso-ideal-windows-exe
