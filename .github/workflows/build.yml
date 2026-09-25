@@ -1,7 +1,7 @@
 name: Build Peso Ideal (Android & Windows)
 
 on:
-  workflow_dispatch: # Executa APENAS manualmente quando clica em "Run workflow"
+  workflow_dispatch: # Executa APENAS manualmente quando você clicar em "Run workflow"
 
 jobs:
   # ==========================================
@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install System & Buildozer Dependencies
+    - name: Install Android Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -29,7 +29,7 @@ jobs:
           ffmpeg \
           libsdl2-dev \
           libsdl2-image-dev \
-          libsdl2-mixin-dev \
+          libsdl2-mixer-dev \
           libsdl2-ttf-dev \
           libportmidi-dev \
           libswscale-dev \
@@ -46,11 +46,10 @@ jobs:
           zip \
           ccache
         python -m pip install --upgrade pip
-        pip install --upgrade buildozer cython
+        pip install --upgrade buildozer "cython<3.0.0"
 
     - name: Accept Android SDK Licenses Automatically
       run: |
-        # Prepara a pasta de licenças e aceita todas antes do buildozer rodar
         mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
         echo -e "\n24333f8a637b3702d1927e129f170b04c89dd1a5\n89330d3222e0e0f21508dae763172ef0132b84ba\nd56f518747945140b3297a73840788ee5a51a148" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
         echo -e "\n84831b9402116e05f350b8639fe287d758635489" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
@@ -81,7 +80,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies
+    - name: Install Windows Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
