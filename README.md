@@ -2,7 +2,7 @@
 
 <img src="icon.png" width="128" alt="Ícone do app">
 
-Calculadora de peso ideal baseado em IMC.
+Calculadora de peso ideal baseada em IMC (Índice de Massa Corporal).
 
 Este app não substitui o devido acompanhamento médico. 
 
