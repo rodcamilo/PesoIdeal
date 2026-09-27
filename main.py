@@ -71,44 +71,47 @@ class CalcIMC(App):
             self.output.text += f"\n{log}"
             return
 
-        # Passo 2: Receber Peso e Processar o Cálculo
-        self.massa = valor
-        
-        altura = self.altura
-        massa = self.massa
-        
-        imc = massa / ((altura * altura) / 10000)
-        alvomin = ((altura * altura) * 18.5) / 10000
-        alvomax = ((altura * altura) * 24.99) / 10000
+        # Passo 2: Receber Peso (com confirmação) e depois Processar o Cálculo
+        if self.massa is None:
+            self.massa = valor
+            log_peso = f"[color=#FFFFFF]Peso/massa informado: {self.massa} kg[/color]"
+            self.output.text += f"\n{log_peso}"
+            
+            altura = self.altura
+            massa = self.massa
+            
+            imc = massa / ((altura * altura) / 10000)
+            alvomin = ((altura * altura) * 18.5) / 10000
+            alvomax = ((altura * altura) * 24.99) / 10000
 
-        log_resultado = f"[color=#FFFFFF]{self.sep}[/color]\n"
-        log_resultado += f"[color=#FFFFFF]Seu IMC é {round(imc, 2)}.[/color]\n"
+            log_resultado = f"[color=#FFFFFF]{self.sep}[/color]\n"
+            log_resultado += f"[color=#FFFFFF]Seu IMC é {round(imc, 2)}.[/color]\n"
 
-        if imc < 17:
-            log_resultado += f"[color=#FF0000]MAGREZA SEVERA/DESNUTRIÇÃO![/color]\n"
-        elif imc < 18.5:
-            log_resultado += f"[color=#FFFF00]ABAIXO do peso/massa ideal.[/color]\n"
-        elif imc < 25:
-            log_resultado += f"[color=#00FF00]Peso/massa IDEAL.[/color]\n"
-        elif imc < 30:
-            log_resultado += f"[color=#FFFF00]ACIMA do peso/massa ideal.[/color]\n"
-        elif imc < 35:
-            log_resultado += f"[color=#FF0000]OBESIDADE![/color]\n"
-        elif imc < 40:
-            log_resultado += f"[color=#FF0000]OBESIDADE SEVERA![/color]\n"
-        else:
-            log_resultado += f"[color=#FF0000]OBESIDADE MÓRBIDA![/color]\n"
+            if imc < 17:
+                log_resultado += f"[color=#FF0000]MAGREZA SEVERA/DESNUTRIÇÃO![/color]\n"
+            elif imc < 18.5:
+                log_resultado += f"[color=#FFFF00]ABAIXO do peso/massa ideal.[/color]\n"
+            elif imc < 25:
+                log_resultado += f"[color=#00FF00]Peso/massa IDEAL.[/color]\n"
+            elif imc < 30:
+                log_resultado += f"[color=#FFFF00]ACIMA do peso/massa ideal.[/color]\n"
+            elif imc < 35:
+                log_resultado += f"[color=#FF0000]OBESIDADE![/color]\n"
+            elif imc < 40:
+                log_resultado += f"[color=#FF0000]OBESIDADE SEVERA![/color]\n"
+            else:
+                log_resultado += f"[color=#FF0000]OBESIDADE MÓRBIDA![/color]\n"
 
-        log_resultado += f"[color=#FFFFFF]Seu peso/massa ideal é entre {round(alvomin, 2)} e {round(alvomax, 2)}.[/color]\n"
-        log_resultado += f"[color=#FFFFFF]{self.sep}[/color]\n"
-        log_resultado += "[color=#FFFFFF]Para novo cálculo, informe a altura (ex: 175):[/color]"
+            log_resultado += f"[color=#FFFFFF]Seu peso/massa ideal é entre {round(alvomin, 2)} e {round(alvomax, 2)}.[/color]\n"
+            log_resultado += f"[color=#FFFFFF]{self.sep}[/color]\n"
+            log_resultado += "[color=#FFFFFF]Para novo cálculo, informe a altura (ex: 175):[/color]"
 
-        self.output.text += f"\n{log_resultado}"
+            self.output.text += f"\n{log_resultado}"
 
-        # Reseta as variáveis para permitir novo cálculo imediato
-        self.altura = None
-        self.massa = None
-        self.input_dado.hint_text = "Digite a altura"
+            # Reseta as variáveis para permitir novo cálculo imediato
+            self.altura = None
+            self.massa = None
+            self.input_dado.hint_text = "Digite a altura"
 
 if __name__ == "__main__":
     CalcIMC().run()
