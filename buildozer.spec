@@ -1,8 +1,8 @@
 [app]
 # Nome do aplicativo que aparecerá no celular
-title = PesoIdeal
+title = Peso Ideal
 package.name = pesoideal
-package.domain = org.pesoideal
+package.domain = org.rodcamilo
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
