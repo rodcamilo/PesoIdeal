@@ -1,6 +1,6 @@
 [app]
 # Nome do aplicativo que aparecerá no celular
-title = Peso Ideal
+title = PesoIdeal
 package.name = pesoideal
 package.domain = org.pesoideal
 source.dir = .
